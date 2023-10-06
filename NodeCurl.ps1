@@ -1,7 +1,7 @@
 $host.UI.RawUI.WindowTitle = "Node Curl"
 Write-Host -ForegroundColor Green "
 	----------------------------------------
-	        Welcome to Node Curl
+	        Welcome to nodeCurl
 	----------------------------------------"
 #Main Menu
 $port1 = Read-Host -Prompt "Please select Port 1 (default 9092)"
@@ -12,7 +12,6 @@ Write-Host -ForegroundColor Yellow "
     ------------------------------
     |         Main Menu          |
     ------------------------------"
-    Write-Host ""
 $MenuOptions = @'
 "Press '1' for Eligible Layers"
 "Press '2' to Check node status"
@@ -22,7 +21,6 @@ $MenuOptions = @'
 "Press '6' for Network Status"
 "Press '7' for PoST Status"
 "Press 'Q' to quit."
-Write-Host ""
 '@
 
 "`n$MenuOptions"
