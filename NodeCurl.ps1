@@ -13,6 +13,7 @@ Write-Host -ForegroundColor Yellow "
     |         Main Menu          |
     ------------------------------"
 $MenuOptions = @'
+"Press '0' to Restart (Change Ports)"
 "Press '1' for Eligible Layers"
 "Press '2' to Check node status"
 "Press '3' for Node Version"
@@ -33,6 +34,7 @@ while(($selection  = Read-Host -Prompt "`nSelect a option") -ne 'Q')
 
     switch( $selection )
     {
+        0 {  powershell .\NodeCurl.ps1}
         1 { .\grpcurl --plaintext 0.0.0.0:$port2 spacemesh.v1.AdminService.EventsStream}
         2 { .\grpcurl --plaintext -d "{}" localhost:$port1 spacemesh.v1.NodeService.Status}
         3 { .\grpcurl --plaintext -d "{}" localhost:$port1 spacemesh.v1.NodeService.Version}
@@ -42,5 +44,7 @@ while(($selection  = Read-Host -Prompt "`nSelect a option") -ne 'Q')
         7 { .\grpcurl --plaintext -d "{}" localhost:$port2 spacemesh.v1.SmesherService.PostSetupStatus}
         Q { 'Quit' }
         default {'Invalid entry'}
+        
     }
 }
+
