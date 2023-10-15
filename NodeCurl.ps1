@@ -5,8 +5,12 @@ Write-Host -ForegroundColor Green "
 	----------------------------------------"
 #Main Menu
 $port1 = Read-Host -Prompt "Please select Port 1 (default 9092)"
+if ([string]::IsNullOrWhiteSpace($port1)){$port1 = "9092"}
+Write-Host $port1 -ForegroundColor Green
 
 $port2 = Read-Host -Prompt "Please select Port 2 (default 9093)"
+if ([string]::IsNullOrWhiteSpace($port2)){$port2 = "9093"}
+Write-Host $port2 -ForegroundColor Green
 
 Write-Host -ForegroundColor Yellow "
     ------------------------------
