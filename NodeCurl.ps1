@@ -4,6 +4,10 @@ Write-Host -ForegroundColor Green "
 	        Welcome to nodeCurl
 	----------------------------------------"
 #Main Menu
+$ip = Read-Host -Prompt "Please select IP Address (default 127.0.0.1)"
+if ([string]::IsNullOrWhiteSpace($ip)){$ip = "127.0.0.1"}
+Write-Host $ip -ForegroundColor Green
+
 $port1 = Read-Host -Prompt "Please select Port 1 (default 9092)"
 if ([string]::IsNullOrWhiteSpace($port1)){$port1 = "9092"}
 Write-Host $port1 -ForegroundColor Green
@@ -39,13 +43,13 @@ while(($selection  = Read-Host -Prompt "`nSelect a option") -ne 'Q')
     switch( $selection )
     {
         0 {  powershell .\NodeCurl.ps1}
-        1 { .\grpcurl --plaintext 0.0.0.0:$port2 spacemesh.v1.AdminService.EventsStream}
-        2 { .\grpcurl --plaintext -d "{}" localhost:$port1 spacemesh.v1.NodeService.Status}
-        3 { .\grpcurl --plaintext -d "{}" localhost:$port1 spacemesh.v1.NodeService.Version}
-        4 { .\grpcurl --plaintext -d "{}" localhost:$port2 spacemesh.v1.SmesherService.IsSmeshing}
-        5 { .\grpcurl --plaintext -d "{}" localhost:$port1 spacemesh.v1.ActivationService.Highest}
-        6 { .\grpcurl --plaintext 127.0.0.1:$port1 spacemesh.v1.DebugService.NetworkInfo}
-        7 { .\grpcurl --plaintext -d "{}" localhost:$port2 spacemesh.v1.SmesherService.PostSetupStatus}
+        1 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"}
+        2 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Status"}
+        3 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version"}
+        4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing"}
+        5 { ./grpcurl.exe -plaintext -max-time '20' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"}
+        6 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.DebugService.NetworkInfo"}
+        7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus"}
         Q { 'Quit' }
         default {'Invalid entry'}
         
