@@ -21,15 +21,15 @@ Write-Host -ForegroundColor Yellow "
     |         Main Menu          |
     ------------------------------"
 $MenuOptions = @'
-"Press '0' to Restart (Change Ports)"
-"Press '1' for Eligible Layers"
-"Press '2' to Check node status"
-"Press '3' for Node Version"
-"Press '4' for Smesh Service"
-"Press '5' for Highest ATX"
-"Press '6' for Network Status"
-"Press '7' for PoST Status"
-"Press 'Q' to quit."
+"Press '0' - Restart (Change Ports)"
+"Press '1' - Events Stream"
+"Press '2' - Check Node status"
+"Press '3' - Node Version"
+"Press '4' - Smesh Service"
+"Press '5' - Highest ATX"
+"Press '6' - Network Status"
+"Press '7' - PoST Status"
+"Press 'Q' - Quit."
 '@
 
 "`n$MenuOptions"
@@ -43,7 +43,15 @@ while(($selection  = Read-Host -Prompt "`nSelect a option") -ne 'Q')
     switch( $selection )
     {
         0 {  powershell .\NodeCurl.ps1}
-        1 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"}
+		1 { $job = Start-Job -ScriptBlock {
+				param($ip, $port2)
+				./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"
+				} -ArgumentList $ip, $port2
+			Wait-Job -Timeout 2 -Job $job
+			Receive-Job -Job $job
+			Remove-Job -Job $job -Force
+		}
+        #1 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"}
         2 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Status"}
         3 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version"}
         4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing"}
