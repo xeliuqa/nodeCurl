@@ -3,6 +3,8 @@ Write-Host -ForegroundColor Green "
 	----------------------------------------
 	        Welcome to nodeCurl
 	----------------------------------------"
+function main {
+
 while($selection -ne 'Q') {
 	Clear-Host
 	#Main Menu
@@ -29,7 +31,7 @@ while($selection -ne 'Q') {
 	"Press '3' - Node Version"
 	"Press '4' - Smesh Service"
 	"Press '5' - Highest ATX"
-	"Press '6' - Network Status"
+	"Press '6' - Node ID"
 	"Press '7' - PoST Status"
 	"Press 'Q' - Quit."
 '@
@@ -57,10 +59,24 @@ while($selection -ne 'Q') {
         	3 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version"}
         	4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing"}
         	5 { ./grpcurl.exe -plaintext -max-time '20' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"}
-        	6 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.DebugService.NetworkInfo"}
+        	#6 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.SmesherID"}
+			6 {$publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+			B64_to_Hex -id2convert $publicKey
+			}
         	7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus"}
         	Q { 'Quit' }
         	default {'Invalid entry'}
     	}
 	}
 }
+}
+
+function B64_to_Hex {
+	param (
+		[Parameter(Position = 0, Mandatory = $true)]
+		[string]$id2convert
+	)
+	[System.BitConverter]::ToString([System.Convert]::FromBase64String($id2convert)).Replace("-", "")
+}
+
+main
