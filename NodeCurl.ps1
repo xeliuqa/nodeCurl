@@ -59,9 +59,10 @@ function main {
                 4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing" }
                 5 { ./grpcurl.exe -plaintext -max-time '20' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest" }
                 6 {
-                    Write-Host "Hex    = " -ForegroundColor Cyan -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                    Write-Host "Node ID: " -ForegroundColor Cyan
+                    Write-Host "Hex    = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
                     B64_to_Hex -id2convert $publicKey 
-                    Write-Host "Base64 = " -ForegroundColor Cyan -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                    Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
                     $publicKey 
                 }
                 7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus" }
