@@ -33,6 +33,7 @@ while($selection -ne 'Q') {
 	"Press '5' - Highest ATX"
 	"Press '6' - Node ID"
 	"Press '7' - PoST Status"
+    "Press '8' - Check if banned"
 	"Press 'Q' - Quit."
 '@
 
@@ -64,6 +65,30 @@ while($selection -ne 'Q') {
 			B64_to_Hex -id2convert $publicKey
 			}
         	7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus"}
+			8 { $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+				if ($null -ne $publicKey) {
+					$publicKey =(B64_to_Hex -id2convert $publicKey)
+					$publicKey = $publicKey.ToLower()
+				
+					$job = Start-Job -ScriptBlock {
+						param($ip, $port1)
+						./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
+					} -ArgumentList $ip, $port1
+					Wait-Job -Timeout 2 -Job $job
+					$response = Receive-Job -Job $job
+					Remove-Job -Job $job -Force
+					if ($response -match $publicKey) {
+						write-host "`n"
+						write-host "The node has been banned" -ForegroundColor Yellow
+					}else{
+						write-host "`n"
+						write-host "It looks alright"
+					}
+				} else {
+					write-host "`n"
+					write-host "The node is offline or you're trying to probe Smapp"
+				}
+			}
         	Q { 'Quit' }
         	default {'Invalid entry'}
     	}
