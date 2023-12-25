@@ -33,7 +33,7 @@ while($selection -ne 'Q') {
 	"Press '5' - Highest ATX"
 	"Press '6' - Node ID"
 	"Press '7' - PoST Status"
-    "Press '8' - Check if banned"
+	"Press '8' - Check if banned"
 	"Press 'Q' - Quit."
 '@
 
@@ -47,7 +47,9 @@ while($selection -ne 'Q') {
 
     	switch( $selection ) {
         	0 {  break selectionLoop}
-			1 { $job = Start-Job -ScriptBlock {
+			1 {write-host "`n"
+				write-host "Please wait ..." 
+				$job = Start-Job -ScriptBlock {
 					param($ip, $port2)
 					./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"
 				} -ArgumentList $ip, $port2
@@ -59,17 +61,23 @@ while($selection -ne 'Q') {
         	2 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Status"}
         	3 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version"}
         	4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing"}
-        	5 { ./grpcurl.exe -plaintext -max-time '20' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"}
+        	5 {write-host "`n" 
+				write-host "Please wait ..." 
+				./grpcurl.exe -plaintext -max-time '60' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"}
         	#6 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.SmesherID"}
-			6 {$publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
-			B64_to_Hex -id2convert $publicKey
-			}
+			6 { Write-Host "Node ID: " -ForegroundColor Cyan
+				Write-Host "Hex    = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                 B64_to_Hex -id2convert $publicKey 
+				 Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                 $publicKey 
+				}
         	7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus"}
-			8 { $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+			8 {write-host "`n" 
+				write-host "Please wait ..."
+				$publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
 				if ($null -ne $publicKey) {
 					$publicKey =(B64_to_Hex -id2convert $publicKey)
-					$publicKey = $publicKey.ToLower()
-				
+					$publicKeylow = $publicKey.ToLower()
 					$job = Start-Job -ScriptBlock {
 						param($ip, $port1)
 						./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
@@ -77,11 +85,15 @@ while($selection -ne 'Q') {
 					Wait-Job -Timeout 2 -Job $job
 					$response = Receive-Job -Job $job
 					Remove-Job -Job $job -Force
-					if ($response -match $publicKey) {
+					if ($response -match $publicKeylow) {
 						write-host "`n"
+						write-host "Your node ID is: " -NoNewline
+						Write-Host $publicKey -ForegroundColor Yellow
 						write-host "The node has been banned" -ForegroundColor Yellow
 					}else{
 						write-host "`n"
+						write-host "Your node ID is:" -NoNewline
+						Write-Host $publicKey -ForegroundColor Yellow
 						write-host "It looks alright"
 					}
 				} else {
