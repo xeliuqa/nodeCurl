@@ -30,7 +30,7 @@ function main {
 	"Press '2' - Check Node status"
 	"Press '3' - Node Version"
 	"Press '4' - Smesh Service"
-	"Press '5' - Highest ATX"
+	"Press '5' - Highest ATX" (Might take up to 5 minutes)
 	"Press '6' - Node ID"
 	"Press '7' - PoST Status"
 	"Press '8' - Check if banned"
@@ -64,7 +64,7 @@ function main {
                 5 {
                     write-host "`n" 
                     write-host "Please wait ..." 
-                    ./grpcurl.exe -plaintext -max-time '60' "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"
+                    ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"
                 }
                 #6 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.SmesherID"}
                 6 {
