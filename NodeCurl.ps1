@@ -80,8 +80,7 @@ function main {
                     Write-Host "Node ID: " -ForegroundColor Cyan
                     Write-Host "Hex    = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
                     B64_to_Hex -id2convert $publicKey 
-                    Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
-                    $publicKey 
+                    Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey
                 }
                 7 { & $grpcurl -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus" }
                 8 {
