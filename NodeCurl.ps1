@@ -1,4 +1,13 @@
+<#  -----------------------------------------------------------------------------------------------
+.VERSION 1.15
+.AUTHOR
+.PROJECTURI https://github.com/xeliuqa/nodeCurl
+
+Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
+	-------------------------------------------------------------------------------------------- #>
+
 $host.UI.RawUI.WindowTitle = "Node Curl"
+$grpcurl = $PSScriptRoot + "\grpcurl.exe"
 Write-Host -ForegroundColor Green "
 	----------------------------------------
 	        Welcome to nodeCurl
@@ -50,43 +59,42 @@ function main {
                     write-host "`n"
                     write-host "Please wait ..." 
                     $job = Start-Job -ScriptBlock {
-                        param($ip, $port2)
-                        ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"
-                    } -ArgumentList $ip, $port2
-                    Wait-Job -Timeout 2 -Job $job
+                        param($ip, $port2, $grpcurl)
+                        & $grpcurl "-plaintext" "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"
+                    } -ArgumentList $ip, $port2, $grpcurl
+                    Wait-Job -Timeout 3 -Job $job
                     Receive-Job -Job $job
                     Remove-Job -Job $job -Force
                 }
                 #1 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.AdminService.EventsStream"}
-                2 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Status" }
-                3 { ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version" }
-                4 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing" }
+                2 { & $grpcurl -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Status" }
+                3 { & $grpcurl -plaintext "$($ip):$($port1)" "spacemesh.v1.NodeService.Version" }
+                4 { & $grpcurl -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.IsSmeshing" }
                 5 {
                     write-host "`n" 
                     write-host "Please wait ..." 
-                    ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"
+                    & $grpcurl -plaintext "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"
                 }
                 #6 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.SmesherID"}
                 6 {
                     Write-Host "Node ID: " -ForegroundColor Cyan
-                    Write-Host "Hex    = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                    Write-Host "Hex    = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
                     B64_to_Hex -id2convert $publicKey 
-                    Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
-                    $publicKey 
+                    Write-Host "Base64 = " -ForegroundColor Yellow -NoNewline; $publicKey
                 }
-                7 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus" }
+                7 { & $grpcurl -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.PostSetupStatus" }
                 8 {
                     write-host "`n" 
                     write-host "Please wait ..."
-                    $publicKey = ((Invoke-Expression ("./grpcurl.exe --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
+                    $publicKey = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 5 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
                     if ($null -ne $publicKey) {
                         $publicKey = (B64_to_Hex -id2convert $publicKey)
                         $publicKeylow = $publicKey.ToLower()
                         $job = Start-Job -ScriptBlock {
-                            param($ip, $port1)
-                            ./grpcurl.exe -plaintext "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
-                        } -ArgumentList $ip, $port1
-                        Wait-Job -Timeout 2 -Job $job
+                            param($ip, $port1, $grpcurl)
+                            & $grpcurl "-plaintext" "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
+                        } -ArgumentList $ip, $port1, $grpcurl
+                        Wait-Job -Timeout 3 -Job $job
                         $response = Receive-Job -Job $job
                         Remove-Job -Job $job -Force
                         if ($response -match $publicKeylow) {
