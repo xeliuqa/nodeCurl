@@ -1,5 +1,5 @@
 <#  -----------------------------------------------------------------------------------------------
-.VERSION 1.16
+.VERSION 1.17
 .AUTHOR
 .PROJECTURI https://github.com/xeliuqa/nodeCurl
 
@@ -87,22 +87,17 @@ Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
                         write-host "`n" 
                         write-host "Please wait ..."
                         $publicKey = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 5 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherID")) | ConvertFrom-Json).publicKey 2>$null
-                        if ($null -eq $publicKey) {
-                            write-host "Something went wrong" -ForegroundColor Red
-                            write-host "Could not retreive Malfeasance List" -ForegroundColor Red
-                            write-host "Please use option 0 to restart script and choose correct port" -ForegroundColor Red
-                        }
-                        else {
-                            if ($null -ne $publicKey) {
-                                $publicKey = (B64_to_Hex -id2convert $publicKey)
-                                $publicKeylow = $publicKey.ToLower()
-                                $job = Start-Job -ScriptBlock {
-                                    param($ip, $port1, $grpcurl)
-                                    & $grpcurl "-plaintext" "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
-                                } -ArgumentList $ip, $port1, $grpcurl
-                                Wait-Job -Timeout 3 -Job $job
-                                $response = Receive-Job -Job $job
-                                Remove-Job -Job $job -Force
+                        if ($null -ne $publicKey) {
+                            $publicKey = (B64_to_Hex -id2convert $publicKey)
+                            $publicKeylow = $publicKey.ToLower()
+                            $job = Start-Job -ScriptBlock {
+                                param($ip, $port1, $grpcurl)
+                                & $grpcurl "-plaintext" "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream"
+                            } -ArgumentList $ip, $port1, $grpcurl
+                            Wait-Job -Timeout 3 -Job $job
+                            $response = Receive-Job -Job $job
+                            Remove-Job -Job $job -Force
+                            if ($null -ne $response) {
                                 if ($response -match $publicKeylow) {
                                     write-host "`n"
                                     write-host "Your node ID is: " -NoNewline
@@ -114,12 +109,15 @@ Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
                                     write-host "Your node ID is:" -NoNewline
                                     Write-Host $publicKey -ForegroundColor Yellow
                                     write-host "It looks alright"
-                                } 
-                            }
-                            else {
+                                }
+                            } else {
                                 write-host "`n"
-                                write-host "The node is offline or you're trying to probe Smapp"
+                                write-host "Something went wrong" -ForegroundColor Red
                             }
+                        }
+                        else {
+                            write-host "`n"
+                            write-host "The node is offline or you're trying to probe Smapp"
                         }
                     }
                     Q { 'Quit' }
