@@ -133,7 +133,7 @@ function B64_to_Hex {
         [Parameter(Position = 0, Mandatory = $true)]
         [string]$id2convert
     )
-    [System.BitConverter]::ToString([System.Convert]::FromBase64String($id2convert)).Replace("-", "")
+    [System.BitConverter]::ToString([System.Convert]::FromBase64String($id2convert)).Replace("-", "").ToLower()
 }
         
 main
