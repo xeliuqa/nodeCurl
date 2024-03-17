@@ -81,7 +81,7 @@ function main {
                 #6 { ./grpcurl.exe -plaintext "$($ip):$($port2)" "spacemesh.v1.SmesherService.SmesherIDs"}
                 6 {
 					$Keys = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherIDs")) | ConvertFrom-Json) 2>$null
-                    write-host "Node IDs: " -ForegroundColor Cyan
+                    write-host "Smesher IDs: " -ForegroundColor Cyan
 					foreach ($id in $Keys.publicKeys) {
 						write-host "Hex    = " -ForegroundColor Yellow -NoNewline; B64_to_Hex -id2convert $id
 						write-host "Base64 = " -ForegroundColor Yellow -NoNewline; $id
