@@ -4,7 +4,7 @@
 .PROJECTURI https://github.com/xeliuqa/nodeCurl
 
 Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
-	-------------------------------------------------------------------------------------------- #>
+-------------------------------------------------------------------------------------------- #>
 
 $host.UI.RawUI.WindowTitle = "Node Curl"
 $grpcurl = $PSScriptRoot + "\grpcurl.exe"
