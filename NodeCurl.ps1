@@ -13,27 +13,28 @@ $ErrorActionPreference = 'SilentlyContinue' # 'Inquire', 'SilentlyContinue'
 	----------------------------------------
 	        Welcome to nodeCurl
 	----------------------------------------"
-function main {
 
+function main {
+        
     while ($selection -ne 'Q') {
         Clear-Host
         #Main Menu
         $ip = Read-Host -Prompt "Please select IP Address (default 127.0.0.1)"
         if ([string]::IsNullOrWhiteSpace($ip)) { $ip = "127.0.0.1" }
         Write-Host $ip -ForegroundColor Green
-
+        
         $port1 = Read-Host -Prompt "Please select Port 1 (default 9092)"
         if ([string]::IsNullOrWhiteSpace($port1)) { $port1 = "9092" }
         Write-Host $port1 -ForegroundColor Green
-
+        
         $port2 = Read-Host -Prompt "Please select Port 2 (default 9093)"
         if ([string]::IsNullOrWhiteSpace($port2)) { $port2 = "9093" }
         Write-Host $port2 -ForegroundColor Green
-
+        
         Write-Host -ForegroundColor Yellow "
-    ------------------------------
-    |         Main Menu          |
-    ------------------------------"
+            ------------------------------
+            |         Main Menu          |
+            ------------------------------"
         $MenuOptions = @'
 	"Press '0' - Restart (Change Ports)"
 	"Press '1' - Events Stream"
@@ -45,15 +46,16 @@ function main {
 	"Press '7' - PoST Status"
 	"Press '8' - Check if banned"
 	"Press 'Q' - Quit."
+
 '@
-
+        
         "`n$MenuOptions"
-
+        
         :selectionLoop while (($selection = Read-Host -Prompt "`nSelect a option") -ne 'Q') {
             Clear-Host
-
+        
             "`n$MenuOptions"
-
+        
             switch ( $selection ) {
                 0 { break selectionLoop }
                 1 {
@@ -108,7 +110,7 @@ function main {
 								write-host "`n"
 								write-host "Your Smesher ID is: " -NoNewline
 								Write-Host $publicKey -ForegroundColor Yellow
-								write-host "This Smeshe ID has been banned" -ForegroundColor Yellow
+								write-host "This Smesher ID has been banned" -ForegroundColor Yellow
 							}
 							else {
 								write-host "`n"
@@ -133,7 +135,7 @@ function main {
         }
     }
 }
-
+        
 function B64_to_Hex {
     param (
         [Parameter(Position = 0, Mandatory = $true)]
