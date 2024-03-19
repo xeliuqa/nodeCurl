@@ -60,7 +60,7 @@ function main {
 	"Press '6' - Smesher IDs"
 	"Press '7' - PoST Status"
 	"Press '8' - Check if banned"
-    "Press '9' - Check 1:n states"
+        "Press '9' - Check 1:n states"
 	"Press 'Q' - Quit."
 
 '@
