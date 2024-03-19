@@ -1,5 +1,5 @@
 <#  -----------------------------------------------------------------------------------------------
-.VERSION 1.18
+.VERSION 1.19
 .AUTHOR
 .PROJECTURI https://github.com/xeliuqa/nodeCurl
 
@@ -30,6 +30,10 @@ function main {
         $port2 = Read-Host -Prompt "Please select Port 2 (default 9093)"
         if ([string]::IsNullOrWhiteSpace($port2)) { $port2 = "9093" }
         Write-Host $port2 -ForegroundColor Green
+
+        $port3 = Read-Host -Prompt "Please select Port 3 (default 9094)"
+            if ([string]::IsNullOrWhiteSpace($port3)) { $port3 = "9094" }
+            Write-Host $port3 -ForegroundColor Green
         
         Write-Host -ForegroundColor Yellow "
             ------------------------------
@@ -45,6 +49,7 @@ function main {
 	"Press '6' - Smesher IDs"
 	"Press '7' - PoST Status"
 	"Press '8' - Check if banned"
+    "Press '9' - Check 1:n States"
 	"Press 'Q' - Quit."
 
 '@
@@ -129,6 +134,7 @@ function main {
                         write-host "The node is offline or you're trying to probe Smapp"
                     }
                 }
+                9 { & $grpcurl -plaintext "$($ip):$($port3)" "spacemesh.v1.PostInfoService.PostStates" }
                 Q { 'Quit' }
                 default { 'Invalid entry' }
             }
