@@ -1,11 +1,11 @@
 <# PSScriptInfo ------------------------------------------------------------------------------
-.VERSION 1.20
+.VERSION 1.21
 .AUTHOR
 .PROJECTURI https://github.com/xeliuqa/nodeCurl
 
 Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
 -------------------------------------------------------------------------------------------- #>
-$version = "1.20"
+$version = "1.21"
 
 $host.UI.RawUI.WindowTitle = "Node Curl"
 $grpcurl = $PSScriptRoot + "\grpcurl.exe"
@@ -110,34 +110,34 @@ function main {
                     $Keys = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherIDs")) | ConvertFrom-Json) 2>$null
 					
                     if ($null -ne $Keys) {
-                        foreach ($id in $Keys.publicKeys) {
-                            $publicKey = (B64_to_Hex -id2convert $id)
-                            $publicKeylow = $publicKey.ToLower()
-                            $job = Start-Job -ScriptBlock {
-                                param($ip, $port1, $grpcurl)
-                                & $grpcurl "-plaintext" "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream" 2>$null
-                            } -ArgumentList $ip, $port1, $grpcurl
-                            Wait-Job -Timeout 3 -Job $job | Out-Null
-                            $response = Receive-Job -Job $job
-                            Remove-Job -Job $job -Force
-                            if ($null -ne $response) {
+                        $job = Start-Job -ScriptBlock {
+                            param($ip, $port1, $grpcurl)
+                            & $grpcurl "-plaintext" "$($ip):$($port1)" "spacemesh.v1.MeshService.MalfeasanceStream" 2>$null
+                        } -ArgumentList $ip, $port1, $grpcurl
+                        Wait-Job -Timeout 3 -Job $job | Out-Null
+                        $response = Receive-Job -Job $job
+                        Remove-Job -Job $job -Force
+                        if ($null -ne $response) {
+                            foreach ($id in $Keys.publicKeys) {
+                                $publicKey = (B64_to_Hex -id2convert $id)
+                                $publicKeylow = $publicKey.ToLower()
                                 if ($response -match $publicKeylow) {
                                     write-host "`n"
                                     write-host "Your Smesher ID is: " -NoNewline
                                     Write-Host $publicKey -ForegroundColor Yellow
-                                    write-host "This Smesher ID has been banned" -ForegroundColor Yellow
+                                    write-host "This Smesher ID has been banned" -ForegroundColor Red
                                 }
                                 else {
                                     write-host "`n"
-                                    write-host "Your Smesher ID is:" -NoNewline
+                                    write-host "Your Smesher ID is: " -NoNewline
                                     Write-Host $publicKey -ForegroundColor Yellow
                                     write-host "It looks alright"
                                 }
                             }
-                            else {
-                                write-host "`n"
-                                write-host "Something went wrong" -ForegroundColor Red
-                            }
+                        }
+                        else {
+                            write-host "`n"
+                            write-host "Something went wrong" -ForegroundColor Red
                         }
                     }
                     else {
