@@ -1,11 +1,11 @@
 <# PSScriptInfo ------------------------------------------------------------------------------
-.VERSION 1.21
+.VERSION 1.22
 .AUTHOR
 .PROJECTURI https://github.com/xeliuqa/nodeCurl
 
 Get grpcurl here: https://github.com/fullstorydev/grpcurl/releases
 -------------------------------------------------------------------------------------------- #>
-$version = "1.21"
+$version = "1.22"
 
 $host.UI.RawUI.WindowTitle = "Node Curl"
 $grpcurl = $PSScriptRoot + "\grpcurl.exe"
@@ -92,8 +92,13 @@ function main {
                 5 {
                     write-host "`n" 
                     write-host "Please wait ..." 
-                    & $grpcurl -plaintext "$($ip):$($port1)" "spacemesh.v1.ActivationService.Highest"
-                }
+                    $highAtx = ((Invoke-Expression ("$($grpcurl) -plaintext $($ip):$($port1) spacemesh.v1.ActivationService.Highest")) | ConvertFrom-Json).atx
+					
+                        write-host "Hex    = " -ForegroundColor Yellow -NoNewline; (B64_to_Hex -id2convert $highAtx.id.id)
+                        write-host "Base64 = " -ForegroundColor Yellow -NoNewline; $highAtx.id.id
+                        write-host "`n"
+                    
+				}
                 6 {
                     $Keys = ((Invoke-Expression ("$($grpcurl) --plaintext -max-time 3 $($ip):$($port2) spacemesh.v1.SmesherService.SmesherIDs")) | ConvertFrom-Json) 2>$null
                     write-host "Smesher IDs: " -ForegroundColor Cyan
